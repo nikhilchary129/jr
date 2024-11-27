@@ -6,6 +6,8 @@ import fs from 'fs';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 
+
+
 // Get the current directory path in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,7 +72,7 @@ app.post("/upload", upload.single('image'), async (req, res) => {
     console.log('Base64 Image:', base64Image.substring(0, 100)); // Log first 100 chars for sanity check
 
     // Define your prompt for the AI model
-    const prompt = "describe the skin situation I'm in";
+    const prompt = "describe the skin situation I'm in  in html wraped in a h2 tag without body head and styles";
 
     // Construct the image object expected by your model
     const image = {
@@ -82,10 +84,34 @@ app.post("/upload", upload.single('image'), async (req, res) => {
 
     // Call the model's generateContent function
     const result = await model.generateContent([prompt, image]);
-    console.log('Gemini API Result:', result.response.text()) ;
-   // string 
+    //console.log('Gemini API Result:', result.response.text());
+    const prompt2 = result.response.text() + "breakdown this into skin type: oily, dry, combination, sensitive in plain text";
+    const result2 = await model.generateContent(prompt2);
+
+    const prompt3 = result2.response.text() + " give just keywords of type of products to used in plain text";
+    const result3 = await model.generateContent(prompt3);
+    const prompt4 = result.response.text() + result2.response.text() + result3.response.text() + "with this info genrate a daily skin care routine in html wraped in a div without body head and styles"
+    const result4 = await model.generateContent(prompt4);
+   // console.log("r2  ", result2.response.text());
+
+    console.log("routine", result4.response.text());
+
+    const prompt5 = result4.response.text() + "extract only these following kwywords Cleansers,Exfoliants,Toners,Serums,Moisturizers,Sunscreens,Acne Treatments,Anti-Aging Products,Face Masks,Eye Creams,Spot Treatments,Hyperpigmentation Treatment   --> remove any adition info in barces in plain text"
+
+    const result5 = await model.generateContent(prompt5);
     // Respond with the result from the model
-    res.json({ text: result.response.text() });
+   // console.log(result5.response.text())
+    let keyofresult = result5.response.text();
+    const keyword = ["Cleansers", "Exfoliants", "Toners", "Serums", "Moisturizers", "Sunscreens", "Acne Treatments", "Anti-Aging Products", "Face Masks",
+      "Eye Creams", "Spot Treatments", "Hyperpigmentation Treatment"];
+
+      let words = Array.from(new Set(keyofresult.split(',').map(word => word.trim())));
+
+    res.json({
+      descriptiom: result.response.text(),
+      routine: result4.response.text(),
+      keyword: words
+    });
   } catch (error) {
     console.error("Error processing image:", error);
     res.status(500).json({ error: 'Internal server error' });
