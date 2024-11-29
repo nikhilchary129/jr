@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 // Replace with your actual Google Cloud API key
-const apiKey = 'AIzaSyC-erXuPBs7CyZ907Qch0QPFUHIGlvqvAg';
+const apiKey = 'AIzaSyD8DMN__y4IgU2szkcXRiqLLyGBLi3hOrw';
 
 // Initialize the Gemini API client
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -29,6 +29,7 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Serve static files from the "public" folder (e.g., HTML, JS, CSS)
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Ensure the 'uploads' directory exists, or create it
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -53,7 +54,20 @@ const upload = multer({ storage: storage });
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));  // Serve index.html
 });
-
+//public\oil.html
+app.get("/oil",(req,res)=>{
+  res.sendFile(path.join(__dirname,'public/oil.html'))
+})
+app.get("/dry",(req,res)=>{
+  res.sendFile(path.join(__dirname,'public/dryskin.html'))
+})
+app.get("/acne",(req,res)=>{
+  res.sendFile(path.join(__dirname,'public/acne.html'))
+})
+//E:\jr\public\combination.html
+app.get("/combination",(req,res)=>{
+  res.sendFile(path.join(__dirname,'public/combination.html'))
+})
 // Handle image upload and AI model processing
 app.post("/upload", upload.single('image'), async (req, res) => {
   try {
@@ -116,6 +130,13 @@ app.post("/upload", upload.single('image'), async (req, res) => {
     console.error("Error processing image:", error);
     res.status(500).json({ error: 'Internal server error' });
   }
+  fs.unlink(imagePath, (err) => {
+    if (err) {
+      console.error(`Failed to delete file: ${imagePath}`, err);
+    } else {
+      console.log(`Successfully deleted file: ${imagePath}`);
+    }
+  });
 });
 
 // Start the server
