@@ -130,13 +130,7 @@ app.post("/upload", upload.single('image'), async (req, res) => {
     console.error("Error processing image:", error);
     res.status(500).json({ error: 'Internal server error' });
   }
-  fs.unlink(imagePath, (err) => {
-    if (err) {
-      console.error(`Failed to delete file: ${imagePath}`, err);
-    } else {
-      console.log(`Successfully deleted file: ${imagePath}`);
-    }
-  });
+  
 });
 
 // Start the server
